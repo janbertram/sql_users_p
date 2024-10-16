@@ -2,9 +2,9 @@ import csv
 import random
 
 def create_username(first_name, last_name, database):
-    first = create_safe_name(first_name)
-    last = create_safe_name(last_name)
-    username = '{}{}{}'.format(database[0], first, last)
+    first = create_safe_name(first_name)[:3]
+    last = create_safe_name(last_name)[:3]
+    username = '{}{}{}'.format(database[0].lower(), first, last)
     return username
 
 def create_safe_name(name):
@@ -47,17 +47,17 @@ def write_files(database, user_data_csv, sender):
     sql_commands.write("CREATE DATABASE IF NOT EXISTS {} COLLATE utf8_german2_ci;\n".format(database))
     welcome_msgs.write('# Nutzer_innen der Datenbank {}:\n\n'.format(database))
     
-    with open (user_data_csv) as user_data:
-        reader = csv.DictReader(user_data, delimiter=';')
+    with open (user_data_csv, encoding='utf-8-sig') as user_data:
+        reader = csv.DictReader(user_data, delimiter=',')
         for row in reader:
             
             user_name = create_username(row['Vorname'], row['Nachname'], database)
             password = create_password()
             salutation = 'Liebe/r'
             if 'Geschlecht' in row:
-                if row['Geschlecht'] == 'w':
+                if row['Geschlecht'].lower() == 'w':
                     salutation = 'Liebe'
-                elif row['Geschlecht'] == 'm':
+                elif row['Geschlecht'].lower() == 'm':
                     salutation = 'Lieber'
             
             sql_commands.write("CREATE USER '{}'@'%' IDENTIFIED BY '{}';\n"
